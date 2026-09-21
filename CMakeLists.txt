@@ -2,14 +2,43 @@ cmake_minimum_required(VERSION 3.24)
 
 project(fractalviewer VERSION 0.1.0 LANGUAGES CXX)
 
+include(FetchContent)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# SDL3 is an external dependency. Install SDL3 separately and point CMake at
-# its prefix with -DCMAKE_PREFIX_PATH=/path/to/prefix when it is not installed
-# in a standard system prefix.
-find_package(SDL3 REQUIRED CONFIG COMPONENTS SDL3)
+option(
+    FRACTAL_USE_SYSTEM_SDL3
+    "Use a system SDL3 instead of fetching the pinned SDL3 release"
+    OFF)
+
+if(FRACTAL_USE_SYSTEM_SDL3)
+    find_package(SDL3 REQUIRED CONFIG COMPONENTS SDL3)
+else()
+    # Release builds use a pinned, statically linked SDL3 so the application
+    # does not require libSDL3.so at runtime. Platform libraries (X11,
+    # Wayland, ALSA, etc.) remain normal system dependencies.
+    set(SDL_TESTS OFF CACHE BOOL "" FORCE)
+    set(SDL_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(SDL_TEST_LIBRARY OFF CACHE BOOL "" FORCE)
+    set(SDL_INSTALL_TESTS OFF CACHE BOOL "" FORCE)
+    set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+    set(SDL_STATIC ON CACHE BOOL "" FORCE)
+    # XScreenSaver is optional for this renderer and is not present on every
+    # minimal Linux development image.
+    set(SDL_X11_XSCRNSAVER OFF CACHE BOOL "" FORCE)
+    # XTest is only used for optional input-injection support.
+    set(SDL_X11_XTEST OFF CACHE BOOL "" FORCE)
+
+    FetchContent_Declare(
+        SDL3
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+        GIT_TAG release-3.4.14
+        GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(SDL3)
+endif()
 
 find_package(OpenMP QUIET)
 
