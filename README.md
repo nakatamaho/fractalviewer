@@ -8,8 +8,8 @@ It uses SDL3 for the window/renderer, explicit real/imaginary arithmetic for all
 fractal formulas, and OpenMP for CPU parallelism when the compiler supports it.
 No complex-number class is used.
 
-SDL3 3.4.14 is pinned as the FetchContent fallback. If a compatible SDL3 is
-already installed, CMake uses that installation first.
+SDL3 3.4.14 is pinned as the default FetchContent dependency. A compatible
+system SDL3 can be selected explicitly with `FRACTAL_USE_SYSTEM_SDL3=ON`.
 
 ## Included fractals
 
