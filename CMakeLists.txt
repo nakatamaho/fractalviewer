@@ -42,11 +42,17 @@ endif()
 
 find_package(OpenMP QUIET)
 
-add_executable(fractalviewer
+set(FRACTALVIEWER_SOURCES
     main.cpp
     fractal_core.cpp
     fractal_core.hpp
 )
+
+if(WIN32)
+    add_executable(fractalviewer WIN32 ${FRACTALVIEWER_SOURCES})
+else()
+    add_executable(fractalviewer ${FRACTALVIEWER_SOURCES})
+endif()
 
 target_compile_features(fractalviewer PRIVATE cxx_std_17)
 target_compile_options(fractalviewer PRIVATE
@@ -55,6 +61,13 @@ target_compile_options(fractalviewer PRIVATE
 )
 
 target_link_libraries(fractalviewer PRIVATE SDL3::SDL3)
+
+if(MINGW)
+    # Keep the MinGW runtime self-contained too. Windows system DLLs remain
+    # normal platform dependencies, while SDL3 and the C++ runtimes are not
+    # required beside the executable.
+    target_link_options(fractalviewer PRIVATE -static-libgcc -static-libstdc++)
+endif()
 
 if(OpenMP_CXX_FOUND)
     target_compile_definitions(fractalviewer PRIVATE FRACTAL_USE_OPENMP=1)

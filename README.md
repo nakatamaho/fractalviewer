@@ -53,6 +53,23 @@ with `-DFRACTAL_USE_SYSTEM_SDL3=ON` and, if needed,
 `-DCMAKE_PREFIX_PATH=/path/to/SDL3`. OpenMP is enabled automatically when the
 compiler provides it.
 
+### MinGW cross-build
+
+The same default FetchContent path builds SDL3 as a static library for MinGW.
+The MinGW C and C++ runtimes are statically linked as well:
+
+```sh
+sudo apt install -y g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64
+cmake -S . -B build-mingw -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-x86_64.cmake \
+  -DCMAKE_BUILD_TYPE=Release
+cmake --build build-mingw --parallel
+```
+
+The result is `build-mingw/fractalviewer.exe`. Windows system DLLs remain
+normal platform dependencies; SDL3, libgcc, and libstdc++ are linked into the
+executable.
+
 ## Coloring modes
 
 ### Smooth

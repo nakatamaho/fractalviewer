@@ -182,6 +182,14 @@ double zoom_factor(const AppState& state) {
            std::max(state.view.unitsPerPixel, 1.0e-300);
 }
 
+void pan_view(AppState& state, int width, int height, double horizontal, double vertical) {
+    constexpr double kPanStep = 0.125;
+    state.view.centerRe += horizontal * static_cast<double>(width) *
+                           state.view.unitsPerPixel * kPanStep;
+    state.view.centerIm += vertical * static_cast<double>(height) *
+                           state.view.unitsPerPixel * kPanStep;
+}
+
 SDL_Texture* create_texture(SDL_Renderer* renderer, int width, int height) {
     if (width <= 0 || height <= 0) {
         return nullptr;
@@ -328,7 +336,7 @@ void draw_hud(
         draw_text_line(renderer, 12.0F, 59.0F,
                        "1..6: fractal | F/Tab: next fractal | P/Space: palette | A: antialias | R: reset");
         draw_text_line(renderer, 12.0F, 70.0F,
-                       "[/]: iterations -/+ 100 | H: help | Esc/Q: quit");
+                       "Arrows: pan | +/-: zoom center | [/]: iterations -/+ 100 | H: help | Esc/Q: quit");
     }
 
     SDL_SetRenderScale(renderer, 1.0F, 1.0F);
@@ -367,6 +375,22 @@ void select_julia_preset(AppState& state, int width, int height) {
     }
 }
 
+bool is_repeatable_navigation_key(SDL_Scancode scancode) {
+    switch (scancode) {
+        case SDL_SCANCODE_LEFT:
+        case SDL_SCANCODE_RIGHT:
+        case SDL_SCANCODE_UP:
+        case SDL_SCANCODE_DOWN:
+        case SDL_SCANCODE_MINUS:
+        case SDL_SCANCODE_EQUALS:
+        case SDL_SCANCODE_KP_MINUS:
+        case SDL_SCANCODE_KP_PLUS:
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool handle_key(
     const SDL_KeyboardEvent& key,
     AppState& state,
@@ -375,7 +399,7 @@ bool handle_key(
     bool& sceneDirty,
     bool& presentDirty) {
 
-    if (key.repeat) {
+    if (key.repeat && !is_repeatable_navigation_key(key.scancode)) {
         return true;
     }
 
@@ -406,6 +430,44 @@ bool handle_key(
             break;
         case SDL_SCANCODE_A:
             state.samplesPerAxis = state.samplesPerAxis == 1 ? 2 : 1;
+            sceneDirty = true;
+            break;
+        case SDL_SCANCODE_LEFT:
+            pan_view(state, width, height, -1.0, 0.0);
+            sceneDirty = true;
+            break;
+        case SDL_SCANCODE_RIGHT:
+            pan_view(state, width, height, 1.0, 0.0);
+            sceneDirty = true;
+            break;
+        case SDL_SCANCODE_UP:
+            pan_view(state, width, height, 0.0, 1.0);
+            sceneDirty = true;
+            break;
+        case SDL_SCANCODE_DOWN:
+            pan_view(state, width, height, 0.0, -1.0);
+            sceneDirty = true;
+            break;
+        case SDL_SCANCODE_MINUS:
+        case SDL_SCANCODE_KP_MINUS:
+            zoom_at(
+                state,
+                width,
+                height,
+                static_cast<double>(width) * 0.5,
+                static_cast<double>(height) * 0.5,
+                1.25);
+            sceneDirty = true;
+            break;
+        case SDL_SCANCODE_EQUALS:
+        case SDL_SCANCODE_KP_PLUS:
+            zoom_at(
+                state,
+                width,
+                height,
+                static_cast<double>(width) * 0.5,
+                static_cast<double>(height) * 0.5,
+                0.8);
             sceneDirty = true;
             break;
         case SDL_SCANCODE_R:

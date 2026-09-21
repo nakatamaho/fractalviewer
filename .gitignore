@@ -1,3 +1,4 @@
 /build/
+/build-mingw/
 .cache/
 compile_commands.json
