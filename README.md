@@ -67,8 +67,8 @@ cmake --build build-mingw --parallel
 ```
 
 The result is `build-mingw/fractalviewer.exe`. Windows system DLLs remain
-normal platform dependencies; SDL3, libgcc, and libstdc++ are linked into the
-executable.
+normal platform dependencies; SDL3, OpenMP, libgcc, and libstdc++ are linked
+into the executable.
 
 ## Coloring modes
 

@@ -40,6 +40,26 @@ else()
     FetchContent_MakeAvailable(SDL3)
 endif()
 
+if(MINGW)
+    # FindOpenMP may prefer MinGW import libraries even when static archives
+    # are available. Prefer the archives so the Windows binary does not need
+    # libgomp-1.dll or libwinpthread-1.dll beside it.
+    foreach(_openmp_library gomp mingwthrd pthread)
+        execute_process(
+            COMMAND "${CMAKE_CXX_COMPILER}" "-print-file-name=lib${_openmp_library}.a"
+            OUTPUT_VARIABLE _openmp_static_path
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        if(EXISTS "${_openmp_static_path}")
+            set(
+                "OpenMP_${_openmp_library}_LIBRARY"
+                "${_openmp_static_path}"
+                CACHE FILEPATH "Static MinGW OpenMP ${_openmp_library} library"
+                FORCE)
+        endif()
+    endforeach()
+endif()
+
 find_package(OpenMP QUIET)
 
 set(FRACTALVIEWER_SOURCES
@@ -64,9 +84,9 @@ target_link_libraries(fractalviewer PRIVATE SDL3::SDL3)
 
 if(MINGW)
     # Keep the MinGW runtime self-contained too. Windows system DLLs remain
-    # normal platform dependencies, while SDL3 and the C++ runtimes are not
-    # required beside the executable.
-    target_link_options(fractalviewer PRIVATE -static-libgcc -static-libstdc++)
+    # normal platform dependencies, while SDL3, OpenMP, and the C++ runtimes
+    # are not required beside the executable.
+    target_link_options(fractalviewer PRIVATE -static -static-libgcc -static-libstdc++)
 endif()
 
 if(OpenMP_CXX_FOUND)
