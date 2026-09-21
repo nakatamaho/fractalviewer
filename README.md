@@ -133,7 +133,7 @@ parallel. Histogram construction itself is a small linear pass over the image.
 | `R` | Reset current fractal view |
 | `J` | Switch to Julia / cycle Julia presets |
 | `C` | Use the current cursor coordinate as Julia `c` |
-| `H` | Toggle help overlay |
+| `H` | Show / hide the menu and HUD |
 | `Esc` or `Q` | Quit |
 
 The overlay shows the complex-plane coordinate under the mouse, current pixel

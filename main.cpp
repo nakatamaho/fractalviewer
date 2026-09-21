@@ -39,7 +39,7 @@ struct AppState {
     bool dragging{false};
     float lastDragX{0.0F};
     float lastDragY{0.0F};
-    bool showHelp{true};
+    bool showHud{true};
     double lastRenderMilliseconds{0.0};
 };
 
@@ -272,6 +272,10 @@ void draw_hud(
     int width,
     int height) {
 
+    if (!state.showHud) {
+        return;
+    }
+
     double cursorRe = 0.0;
     double cursorIm = 0.0;
     screen_to_plane(state, width, height, state.mouseX, state.mouseY, cursorRe, cursorIm);
@@ -286,8 +290,7 @@ void draw_hud(
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     const float logicalWidth = static_cast<float>(width) / uiScale;
-    const float panelHeight = state.showHelp ? 90.0F : 42.0F;
-    SDL_FRect panel{6.0F, 6.0F, std::max(20.0F, logicalWidth - 12.0F), panelHeight};
+    SDL_FRect panel{6.0F, 6.0F, std::max(20.0F, logicalWidth - 12.0F), 90.0F};
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 176);
     SDL_RenderFillRect(renderer, &panel);
 
@@ -330,14 +333,12 @@ void draw_hud(
         draw_text_line(renderer, 12.0F, 33.0F, "C: switch to Julia using cursor as c | J: Julia preset");
     }
 
-    if (state.showHelp) {
-        draw_text_line(renderer, 12.0F, 48.0F,
-                       "Mouse wheel: zoom at cursor | Left drag: pan | Double-left: zoom in | Right: zoom out");
-        draw_text_line(renderer, 12.0F, 59.0F,
-                       "1..6: fractal | F/Tab: next fractal | P/Space: palette | A: antialias | R: reset");
-        draw_text_line(renderer, 12.0F, 70.0F,
-                       "Arrows: pan | +/-: zoom center | [/]: iterations -/+ 100 | H: help | Esc/Q: quit");
-    }
+    draw_text_line(renderer, 12.0F, 48.0F,
+                   "Mouse wheel: zoom at cursor | Left drag: pan | Double-left: zoom in | Right: zoom out");
+    draw_text_line(renderer, 12.0F, 59.0F,
+                   "1..6: fractal | F/Tab: next fractal | P/Space: palette | A: antialias | R: reset");
+    draw_text_line(renderer, 12.0F, 70.0F,
+                   "Arrows: pan | +/-: zoom center | [/]: iterations -/+ 100 | H: menu | Esc/Q: quit");
 
     SDL_SetRenderScale(renderer, 1.0F, 1.0F);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
@@ -475,7 +476,7 @@ bool handle_key(
             sceneDirty = true;
             break;
         case SDL_SCANCODE_H:
-            state.showHelp = !state.showHelp;
+            state.showHud = !state.showHud;
             presentDirty = true;
             break;
         case SDL_SCANCODE_LEFTBRACKET:
