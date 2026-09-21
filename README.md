@@ -32,6 +32,47 @@ any of the four coloring modes below.
 A reference render using the Aurora palette is included at
 `docs/previews/coloring_modes_aurora.png`.
 
+## Build on Linux
+
+The project uses CMake and C++17. SDL3 is deliberately kept as an external
+library: install it first, then point the application build at its install
+prefix.
+
+The following installs SDL3 3.4.14 into `~/.local`, without modifying the
+system directories:
+
+```sh
+sudo apt update
+sudo apt install -y build-essential cmake git ninja-build \
+  libx11-dev libxext-dev libxrandr-dev libxfixes-dev \
+  libxi-dev libxcursor-dev libxinerama-dev libwayland-dev \
+  libasound2-dev
+
+git clone --depth 1 --branch release-3.4.14 \
+  https://github.com/libsdl-org/SDL.git "$HOME/src/SDL"
+cmake -S "$HOME/src/SDL" -B "$HOME/src/SDL/build" -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF \
+  -DSDL_SHARED=ON -DSDL_STATIC=OFF \
+  -DCMAKE_INSTALL_PREFIX="$HOME/.local"
+cmake --build "$HOME/src/SDL/build" --parallel
+cmake --install "$HOME/src/SDL/build"
+```
+
+Then configure and build this project:
+
+```sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_PREFIX_PATH="$HOME/.local"
+cmake --build build --parallel
+LD_LIBRARY_PATH="$HOME/.local/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+  ./build/fractalviewer
+```
+
+`SDL3Config.cmake` is supplied by the external SDL3 install and is resolved
+by `find_package(SDL3 CONFIG REQUIRED)`. OpenMP is enabled automatically when
+the compiler provides it.
+
 ## Coloring modes
 
 ### Smooth
