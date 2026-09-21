@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026 Nakata Maho
+
 cmake_minimum_required(VERSION 3.24)
 
 project(fractalviewer VERSION 0.1.0 LANGUAGES CXX)

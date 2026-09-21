@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: BSD-2-Clause -->
+<!-- Copyright (c) 2026 Nakata Maho -->
+
 # SDL3 Fractal Explorer
 
 A cross-platform C++17 fractal explorer for macOS, Windows, and Linux.
@@ -69,6 +72,10 @@ cmake --build build-mingw --parallel
 The result is `build-mingw/fractalviewer.exe`. Windows system DLLs remain
 normal platform dependencies; SDL3, OpenMP, libgcc, and libstdc++ are linked
 into the executable.
+
+## License
+
+BSD 2-Clause License. See [LICENSE](LICENSE).
 
 ## Coloring modes
 
